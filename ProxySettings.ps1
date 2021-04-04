@@ -1,4 +1,19 @@
-﻿#Read the registry locations for Internet proxy and WinHTTP settings to determined if they are present and enabled
+﻿# function to read Registry Value
+function Get-RegistryValue { param (
+    [parameter(Mandatory=$true)]
+    [ValidateNotNullOrEmpty()]$Path,
+    [parameter(Mandatory=$true)]
+    [ValidateNotNullOrEmpty()]$Value
+    )
+
+    if (Test-Path -path $Path) {
+        return Get-ItemProperty -Path $Path | Select-Object -ExpandProperty $Value -ErrorAction silentlycontinue
+    } else {
+        return $false
+    }
+}
+
+#Read the registry locations for Internet proxy and WinHTTP settings to determined if they are present and enabled
 
 $RegPathHKLM = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings"
 $RegPathHKU = "HKU:\S-1-5-18\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings"
@@ -48,17 +63,3 @@ Write-Host "WinHTTP Proxy setting for current run context"(whoami)(netsh winhttp
         Write-Host "WinHttpSettings is set to :  "  (Get-RegistryValue -Path $RegPathDefault\Connections -Value "WinHttpSettings" | Format-Hex) 
 	} 
 
-# function to read Registry Value
-function Get-RegistryValue { param (
-    [parameter(Mandatory=$true)]
-    [ValidateNotNullOrEmpty()]$Path,
-    [parameter(Mandatory=$true)]
-    [ValidateNotNullOrEmpty()]$Value
-    )
-
-    if (Test-Path -path $Path) {
-        return Get-ItemProperty -Path $Path | Select-Object -ExpandProperty $Value -ErrorAction silentlycontinue
-    } else {
-        return $false
-    }
-}
